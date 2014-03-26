@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API Docs</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+<div class="container" ng-app="apiApp" ng-controller="ApiController">
+
+    <div class="row" ng-show="loaded">
+        <div class="col-md-3">
+            <div class="list-group" style="margin-top: 20px;">
+                <a href="#/overview" class="list-group-item" ng-class="{'active': page == 'overview'}">API Overview</a>
+
+                <a ng-repeat="group in groupNames" href="#/{{group}}" class="list-group-item" ng-class="{'active': page == group}" ng-if="groups[group].length > 0">{{group}}</a>
+
+
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div ng-show="page == 'overview'">
+                <h1>API Documentation</h1>
+                <p class="lead">Welcome to the documentation for {{settings.applicationName}}</p>
+                <p>
+                    This API can be access at <code>{{settings.apiRoot}}</code>. Use the navigation bar on the left to browse through all of the available methods.
+                </p>
+            </div>
+
+            <div ng-show="page != 'overview'">
+                <h1>{{page}}</h1>
+                <div ng-repeat="method in selectedPage">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{{method.title}}</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div>
+                                <span class="label label-default">{{method.method}}</span> <code>{{method.url}}</code>
+                            </div>
+                            <div ng-if="method.params">
+                                <h5>Attributes</h5>
+                                <table class="table table-bordered table-condensed" style="margin-top: 10px;">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                    <tr ng-repeat="param in method.params">
+                                        <td><span ng-if="param.required || param.index >= 0" class="label label-danger">R</span> {{param.name}}</td>
+                                        <td>{{param.type}}</td>
+                                        <td>
+                                            {{param.description}}
+                                            <div ng-if="param.example" class="small">e.g. <strong>{{param.example}}</strong></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div ng-if="method.options.response">
+                                <h5>Response</h5>
+                                <p>{{method.options.response.description}}</p>
+                                <pre class="small">{{method.options.response.example}}</pre>
+                            </div>
+                            <div>
+                                <a href="" ng-click="showConsoleModal(method)">Try in the console</a>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div ng-hide="loaded">
+        <div class="row" style="margin-top: 50px;">
+            <div class="lead" style="text-align: center">
+                Loading. Please Wait.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="consoleModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">{{consoleMethod.title}}</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <span class="label label-default">{{consoleMethod.method}}</span> <code>{{consoleMethod.url}}</code>
+                    </div>
+
+                    <div ng-show="consoleMethod.options.auth == 'required' || consoleMethod.options.auth == 'optional'">
+                        <h4>Authentication</h4>
+                        <span class="label label-warning" ng-show="consoleMethod.options.auth == 'optional'">Optional</span>
+                        <span class="label label-danger" ng-show="consoleMethod.options.auth == 'required'">Required</span>
+
+                        <div ng-if="settings.authAttributes && settings.authAttributes.length > 0">
+                            <table class="table table-bordered table-condensed" style="margin-top: 10px;">
+                                <tr ng-repeat="authAttribute in settings.authAttributes">
+                                    <th >{{authAttribute.name}}</th>
+                                    <td><input id="auth_{{authAttribute.name}}" type="text" class="form-control"/></td>
+                                </tr>
+
+                            </table>
+                        </div>
+                    </div>
+
+                    <h4>Attributes</h4>
+                    <div ng-if="consoleMethod.params && consoleMethod.params.length > 0">
+                        <table class="table table-bordered table-condensed" style="margin-top: 10px;">
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr ng-repeat="param in consoleMethod.params">
+                                <td><span ng-if="param.required || param.index >= 0" class="label label-danger">R</span> <span ng-if="param.index >= 0" class="label label-info">URL</span> {{param.name}}</td>
+                                <td>{{param.type}}</td>
+                                <td>
+                                    <input id="param_{{param.name}}" class="form-control" type="text" value="{{param.example}}"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="margin-top: 2px;">
+                        <button class="btn btn-success" ng-click="runConsoleMethod()">Run</button>
+                    </div>
+
+                    <div ng-show="results || resultsError" style="margin-top: 20px;">
+                        <h4>Results</h4>
+                        <pre ng-show="results">{{results}}</pre>
+
+                        <pre ng-show="resultsError"><span class="label label-danger" ng-show="resultsErrorCode">{{resultsErrorCode}}</span> {{resultsError}}</pre>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/app/api-app.js"></script>
+<script src="js/app/api-controller.js"></script>
+
+</body>
+</html>
