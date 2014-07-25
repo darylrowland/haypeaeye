@@ -42,6 +42,31 @@ app.all("/api/*", function(req, res, next) {
 ```
 
 ### Defining API Routes
+You define haypeaeye routes in a similar way as you would Express routes. You can place the route definitions either in the app.js file, or across multiple route files.
+
+Here is an example haypeaeye route definition:
+
+```
+haypeaeye.addApiMethod(
+    "/api/say/hello", haypeaeye.GET,
+    "Says hello to the specified user",
+    {grouping: "Living", auth: haypeaeye.AUTH_NOT_REQUIRED},
+    [
+        {name: "first_name", type: haypeaeye.String, required: true, description: "User's first name"},
+    ],
+    function(req, res) {
+        res.json({"message": "Hello " + req.query.first_name});
+    }
+);
+```
+
+### Accessing API Docs
+haypeaeye will automatically generate API documentation for you in HTML (and JSON) format. To access the HTML docs go to the following URL on your server:
+
+/api/docs/html
+
+
+
 
 
 
