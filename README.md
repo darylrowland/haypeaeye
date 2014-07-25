@@ -13,6 +13,8 @@ haypeaeye works alongside Express, and provides:
 ### Getting Started
 In your app.js: `var haypeaeye = require('haypeaeye')`
 
+Then add the following code snippet to set some initial settings:
+
 ```
 // Haypeaeye Setup
 haypeaeye.setSettings({
@@ -30,3 +32,16 @@ haypeaeye.setSettings({
 });
 
 ```
+
+Finally, add the following code snippet to your app.js file, so that hayepeaeye can process all routes beginning with /api/
+
+```
+app.all("/api/*", function(req, res, next) {
+    haypeaeye.handleRequest(req, res, next);
+});
+```
+
+### Defining API Routes
+
+
+
