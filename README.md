@@ -52,7 +52,7 @@ Here is an example haypeaeye route definition:
 haypeaeye.addApiMethod(
     "/api/say/hello", haypeaeye.GET,
     "Says hello to the specified user",
-    {grouping: "Living", auth: haypeaeye.AUTH_NOT_REQUIRED},
+    {grouping: "Greetings", auth: haypeaeye.AUTH_NOT_REQUIRED},
     [
         {name: "first_name", type: haypeaeye.String, required: true, description: "User's first name"},
     ],
