@@ -3,6 +3,8 @@ haypeaeye
 
 NodeJS Express API Library for creating APIs that self document and validate. The motivation behind haypeaeye was that I hated the idea of writing + commenting an API library in code and then having to write up the API again in a completely different place. This ultimately leads to inconsistencies between your code and your documentation... hayepeaeye fixes this.
 
+Note: this is just the beginnings of the documentation, more will be added soon.
+
 haypeaeye works alongside Express, and provides:
 * a way to easily define API endpoints WITH documentation
 * additional validation of parameters (e.g. of the parameter types you are passing into your API method)
