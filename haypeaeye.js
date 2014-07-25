@@ -1,3 +1,9 @@
+var moment = require("moment");
+var path = require('path');
+var apiDocsPath = path.join(__dirname, '/apidocs')
+
+exports.DATE_FORMAT = "YYYY-MM-DD HH:mm"
+
 var apiMethods = {};
 
 exports.AUTH_REQUIRED = "required";
@@ -12,6 +18,9 @@ exports.String = "String";
 exports.Number = "Number";
 exports.Boolean = "Boolean";
 exports.File = "File";
+exports.Enum = "Enum";
+exports.Array = "Array";
+exports.Date = "Date";
 
 exports.GET = "GET";
 exports.POST = "POST";
@@ -19,6 +28,7 @@ exports.PUT = "PUT";
 exports.DELETE = "DELETE";
 
 exports.DOCS_SUFFIX = ".docs";
+exports.DOCS_PATH = "/docs";
 
 exports.DEFAULT_APP_TOKEN_NAME = "apptoken";
 
@@ -113,8 +123,12 @@ exports.addApiMethod = function(url, method, title, options, params, callback) {
     }
 };
 
-var getAttribute = function(req, attrName, methodType) {
-    if (req.params[attrName]) {
+exports.getAttributeFromRequest = function(req, attrName) {
+    return exports.getAttribute(req, attrName, req.method);
+}
+
+exports.getAttribute = function(req, attrName, methodType) {
+    if (req.params && req.params[attrName]) {
         return req.params[attrName];
     }
 
@@ -156,12 +170,15 @@ var callMethod = function(methodToCall, req, res) {
             var param = methodToCall.params[i];
 
             // Is this param required?
-            if ((param.required || param.index != undefined) && (!getAttribute(req, param.name, methodToCall.method))) {
-                res.send(400, {error: "Required attribute not present, '" + param.name + "'"});
-                return;
+            if ((param.required || param.index != undefined) && (!exports.getAttribute(req, param.name, methodToCall.method))) {
+                // Check this isn't a false boolean
+                if (!(param.type && param.type == exports.Boolean)) {
+                    res.send(400, {error: "Required attribute not present, '" + param.name + "'"});
+                    return;
+                }
             }
 
-            var rawValue = getAttribute(req, param.name, methodToCall.method);
+            var rawValue = exports.getAttribute(req, param.name, methodToCall.method);
 
             if (rawValue != null) {
                 // Begin more detailed validations
@@ -171,6 +188,42 @@ var callMethod = function(methodToCall, req, res) {
                         return;
                     }
                 }
+
+                // Dates
+                if (param.type && param.type == exports.Date) {
+                    var dateValue = moment(rawValue, exports.DATE_FORMAT);
+                    if (!dateValue.isValid()) {
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm"});
+                        return;
+                    }
+                }
+
+                // Enums
+                if (param.type && param.type == exports.Enum && param.validValues && param.validValues.length > 0) {
+                    // Check that the value the user entered is a valid value
+                    var validValue = false;
+
+                    for (var v = 0; v < param.validValues.length; v++) {
+                        if (rawValue == param.validValues[v]) {
+                            validValue = true;
+                            break;
+                        }
+                    }
+
+                    if (!validValue) {
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid value"});
+                        return;
+                    }
+                }
+
+                // Arrays
+                if (param.type && param.type == exports.Array) {
+                    if (!(rawValue instanceof Array)) {
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid array"});
+                        return;
+                    }
+                }
+
             }
         }
     }
@@ -179,7 +232,17 @@ var callMethod = function(methodToCall, req, res) {
 }
 
 exports.handleRequest = function(req, res, next) {
-    if (req.method == exports.GET && req.url == settings.documentationUrl + "/settings") {
+    var htmlDocsUrl = settings.documentationUrl + "/html";
+
+    if (req.method == exports.GET && req.url.indexOf(htmlDocsUrl) >= 0) {
+        // HTML docs
+        if (req.url == htmlDocsUrl) {
+            res.redirect("html/index.html");
+        } else {
+            var strWithoutStartOfUrl = req.url.substr(req.url.indexOf(htmlDocsUrl) + htmlDocsUrl.length);
+            res.sendfile(apiDocsPath + strWithoutStartOfUrl);
+        }
+    } else if (req.method == exports.GET && req.url == settings.documentationUrl + "/settings") {
         res.json(settings);
     } else if (req.method == exports.GET && req.url == settings.documentationUrl) {
         var docsJson = [];
@@ -272,6 +335,6 @@ exports.setSettings = function(settingsObj) {
     applySetting("appTokenRequired", settingsObj, [exports.APP_TOKEN_ALWAYS_REQUIRED, exports.APP_TOKEN_NEVER_REQUIRED, exports.APP_TOKEN_PER_REQUEST_REQUIRED]);
     applySetting("authenticatorMethod", settingsObj);
     applySetting("documentationUrl", settingsObj);
-    applySetting("applicationName", settingsObj);
+    applySetting("authAttributes", settingsObj);
     applySetting("apiRoot", settingsObj);
 }

@@ -1,4 +1,5 @@
 haypeaeye
 =========
 
-NodeJS Express API Library for auto documentation and validation
+NodeJS Express API Library for creating APIs that self document and validate.
+More documentation to come soon.

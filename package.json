@@ -1,0 +1,17 @@
+{
+    "name": "haypeaeye",
+    "version": "0.0.1",
+    "description": "Library for Express that lets you easily create APIs that self document and validate",
+    "main": "haypeaeye.js",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/darylrowland/haypeaeye.git"
+    },
+    "keywords": [
+        "api",
+        "express",
+        "docs"
+    ],
+    "author": "Daryl Rowland <daryl@cloudyclear.com>",
+    "license": "MIT"
+}

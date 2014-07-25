@@ -72,6 +72,14 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
             $('#consoleModal').modal();
         }
 
+        $scope.getParamValue = function(param) {
+            if (param.type == "Object") {
+                return JSON.parse($("#param_" + param.name).val());
+            } else {
+                return $("#param_" + param.name).val();
+            }
+        }
+
         $scope.runConsoleMethod = function() {
             $scope.results = null;
             $scope.resultsError = null;
@@ -133,7 +141,7 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                 // POST or PUT
                 for (var i = 0; i < $scope.consoleMethod.params.length; i++) {
                     if ($scope.consoleMethod.params[i].index == undefined) {
-                        postObject[$scope.consoleMethod.params[i].name] = $("#param_" + $scope.consoleMethod.params[i].name).val();
+                        postObject[$scope.consoleMethod.params[i].name] = $scope.getParamValue($scope.consoleMethod.params[i]);
                     }
                 }
 
