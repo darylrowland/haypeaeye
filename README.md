@@ -81,7 +81,15 @@ Haypeaeye provides some utility methods for returning standard responses from yo
         haypeaeye.successResponse(res, err);
         ```
 
+* Success or error - makes it easy for you to return an error or success depending directly on a callback
+        ```
+        haypeaeye.successOrErrorResponse(res, err, successData);
+        ```
 
+* Unathourised - for indicating that the user does not have permission to do that
+        ```
+        haypeaeye.unauthorisedResponse(res, message);
+        ```
 
 ### Accessing API Docs
 haypeaeye will automatically generate API documentation for you in HTML (and JSON) format. To access the HTML docs go to the following URL on your server:
