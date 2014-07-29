@@ -57,12 +57,25 @@ haypeaeye.addApiMethod(
         {name: "first_name", type: haypeaeye.String, required: true, description: "User's first name"},
     ],
     function(req, res) {
-        res.json({"message": "Hello " + req.query.first_name});
+        hayepeaeye.successReponse(res, {"message": "Hello " + req.query.first_name});
     }
 );
 ```
 
 #### Parameter types
+The following parameter types are currently supported:
+* haypeaeye.String
+* haypeaeye.Number
+* haypeaeye.Date
+* haypeaeye.File - although see note below about adding a multipart middleware
+
+#### Response utility methods
+Haypeaeye provides some utility methods for returning standard responses from your methods. These are:
+
+Success - for returning a success response, where jsonContent is the response you are returning
+```
+haypeaeye.successResponse(res, jsonContent);
+```
 
 
 ### Accessing API Docs
@@ -86,6 +99,8 @@ app.all("/api/*", multipartMiddleware function(req, res, next) {
     haypeaeye.handleRequest(req, res, next);
 });
 ```
+
+You can then access your parameters via req.files.param_name
 
 
 
