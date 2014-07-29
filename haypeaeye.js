@@ -1,6 +1,7 @@
 var moment = require("moment");
 var path = require('path');
-var apiDocsPath = path.join(__dirname, '/apidocs')
+var fs = require('fs');
+var apiDocsPath = path.join(__dirname, '/apidocs');
 
 exports.DATE_FORMAT = "YYYY-MM-DD HH:mm"
 
@@ -109,13 +110,30 @@ exports.addApiMethod = function(url, method, title, options, params, callback) {
 
     }
 
+    // See if we have any files in the params - i.e. does this method need to be multipart
+    var methodHasFiles = false;
+
+    if (params && params.length > 0) {
+        for (var i = 0; i < params.length; i++) {
+            if (params[i].type == exports.File) {
+                methodHasFiles = true;
+                break;
+            }
+        }
+    }
+
+    if (methodHasFiles && method != exports.POST) {
+        console.error("You have specified a method that takes files but is not POST - " + url);
+    }
+
     apiMethods[method + "_" + url] = {
         url: url,
         method: method,
         title: title,
         params: params,
         callback: callback,
-        options: options
+        options: options,
+        multipart: methodHasFiles
     };
 
     if (regExpStr != "") {
@@ -141,6 +159,8 @@ exports.getAttribute = function(req, attrName, methodType) {
     } else if (methodType == exports.POST) {
         if (req.body[attrName] != null && req.body[attrName] != undefined) {
             return req.body[attrName];
+        } else if (req.files && req.files[attrName]) {
+            return req.files[attrName];
         } else {
             return null;
         }
@@ -229,6 +249,7 @@ var callMethod = function(methodToCall, req, res) {
     }
 
     methodToCall.callback(req, res);
+
 }
 
 exports.handleRequest = function(req, res, next) {
@@ -330,11 +351,51 @@ var applySetting = function(settingName, newSettings, validValues) {
     }
 }
 
+// Useful for calling if you are uploading files, after you have done whatever you wanted to do with the file
+exports.removeTempFiles = function(req) {
+    if (req.files) {
+        for (var fileFieldName in req.files) {
+            fs.unlink(req.files[fileFieldName].path);
+        }
+    }
+}
+
 exports.setSettings = function(settingsObj) {
     applySetting("appToken", settingsObj, []);
     applySetting("appTokenRequired", settingsObj, [exports.APP_TOKEN_ALWAYS_REQUIRED, exports.APP_TOKEN_NEVER_REQUIRED, exports.APP_TOKEN_PER_REQUEST_REQUIRED]);
     applySetting("authenticatorMethod", settingsObj);
     applySetting("documentationUrl", settingsObj);
+    applySetting("applicationName", settingsObj);
     applySetting("authAttributes", settingsObj);
     applySetting("apiRoot", settingsObj);
 }
+
+// UTILITY METHODS FOR SENDING RESPONSES IN STANDARD FORMATS
+exports.errorResponse = function (res, err) {
+    if (err === null) {
+        res.send(500, {status: "error", error: "No results"});
+    } else {
+        if (err.message) {
+            res.send(500, {status: "error", error: err.message});
+        } else {
+            res.send(500, {status: "error", error: err});
+        }
+    }
+
+};
+
+exports.successResponse = function (res, data) {
+    res.json({status: "ok", data: data});
+};
+
+exports.successOrErrorResponse = function (res, err, data) {
+    if (err) {
+        exports.errorResponse(res, err);
+    } else {
+        exports.successResponse(res, data);
+    }
+};
+
+exports.unauthorisedResponse = function (res) {
+    res.send(401, {status: "error", error: "Not logged in or authorised app"});
+};
