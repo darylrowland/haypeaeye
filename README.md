@@ -72,10 +72,10 @@ The following parameter types are currently supported:
 #### Response utility methods
 Haypeaeye provides some utility methods for returning standard responses from your methods. These are:
 
-Success - for returning a success response, where jsonContent is the response you are returning
-```
-haypeaeye.successResponse(res, jsonContent);
-```
+* Success - for returning a success response, where jsonContent is the response you are returning
+    ```
+    haypeaeye.successResponse(res, jsonContent);
+    ```
 
 
 ### Accessing API Docs
