@@ -396,6 +396,11 @@ exports.successOrErrorResponse = function (res, err, data) {
     }
 };
 
-exports.unauthorisedResponse = function (res) {
-    res.send(401, {status: "error", error: "Not logged in or authorised app"});
+exports.unauthorisedResponse = function (res, message) {
+    var errMessage = "Not logged in or authorised app"
+    if (message) {
+        errMessage = message;
+    }
+
+    res.send(401, {status: "error", error: errMessage});
 };
