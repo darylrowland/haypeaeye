@@ -62,13 +62,30 @@ haypeaeye.addApiMethod(
 );
 ```
 
+#### Parameter types
+
+
 ### Accessing API Docs
 haypeaeye will automatically generate API documentation for you in HTML (and JSON) format. To access the HTML docs go to the following URL on your server:
 
 /api/docs/html
 
 
+### Note on File Uploads
+If you want to be able to upload files to your server, you'll need to include an Express middleware module like 'connect-multiparty' in your main app.js file, an example is below:
 
+```
+var multipart = require('connect-multiparty'); // For haypeaeye file uploads
+var multipartMiddleware = multipart();
+```
+
+You then need to modify your app.all route for haypeaeye as shown below:
+
+```
+app.all("/api/*", multipartMiddleware function(req, res, next) {
+    haypeaeye.handleRequest(req, res, next);
+});
+```
 
 
 
