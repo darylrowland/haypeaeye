@@ -115,5 +115,11 @@ app.all("/api/*", multipartMiddleware function(req, res, next) {
 
 You can then access your parameters via req.files.param_name
 
+It is well worth cleaning up the temp files that are generated from uploads after you're done with them. Haypeaeye provides a utility method that does this for you (where req is the ExpressJS request object):
+
+```
+haypeaeye.removeTempFiles(req);
+```
+
 
 
