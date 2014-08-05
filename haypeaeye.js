@@ -258,7 +258,7 @@ exports.handleRequest = function(req, res, next) {
     if (req.method == exports.GET && req.url.indexOf(htmlDocsUrl) >= 0) {
         // HTML docs
         if (req.url == htmlDocsUrl) {
-            res.redirect("html/index.html");
+            res.redirect(settings.documentationUrl + "/html/index.html");
         } else {
             var strWithoutStartOfUrl = req.url.substr(req.url.indexOf(htmlDocsUrl) + htmlDocsUrl.length);
             res.sendfile(apiDocsPath + strWithoutStartOfUrl);
