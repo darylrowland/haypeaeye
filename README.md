@@ -57,7 +57,7 @@ haypeaeye.addApiMethod(
         {name: "first_name", type: haypeaeye.String, required: true, description: "User's first name"},
     ],
     function(req, res) {
-        hayepeaeye.successReponse(res, {"message": "Hello " + req.query.first_name});
+        hayepeaeye.successResponse(res, {"message": "Hello " + req.query.first_name});
     }
 );
 ```
