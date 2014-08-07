@@ -171,7 +171,6 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
 
 
             } else {
-                console.log("MULTIPART FORM!");
                 // This is a multipart method, i.e. it has files too
                 var formData = new FormData();
 
