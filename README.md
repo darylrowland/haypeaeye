@@ -1,7 +1,7 @@
 haypeaeye
 =========
 
-NodeJS Express API Library for creating APIs that self document and validate. The motivation behind haypeaeye was that I hated the idea of writing + commenting an API library in code and then having to write up the API again in a completely different place. This ultimately leads to inconsistencies between your code and your documentation... hayepeaeye fixes this.
+NodeJS Express API Library for creating APIs that self document and validate. The motivation behind haypeaeye was that I hated the idea of writing + commenting an API library in code and then having to write up the API again in a completely different place. This ultimately leads to inconsistencies between your code and your documentation... haypeaeye fixes this.
 
 Note: this is just the beginnings of the documentation, more will be added soon.
 
@@ -35,7 +35,7 @@ haypeaeye.setSettings({
 
 ```
 
-Finally, add the following code snippet to your app.js file, so that hayepeaeye can process all routes beginning with /api/
+Finally, add the following code snippet to your app.js file, so that haypeaeye can process all routes beginning with /api/
 
 ```
 app.all("/api/*", function(req, res, next) {
@@ -57,7 +57,7 @@ haypeaeye.addApiMethod(
         {name: "first_name", type: haypeaeye.String, required: true, description: "User's first name"},
     ],
     function(req, res) {
-        hayepeaeye.successResponse(res, {"message": "Hello " + req.query.first_name});
+        haypeaeye.successResponse(res, {"message": "Hello " + req.query.first_name});
     }
 );
 ```
