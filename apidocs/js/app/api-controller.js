@@ -73,7 +73,12 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
         }
 
         $scope.getParamValue = function(param) {
-            if (param.type == "Object") {
+            if (param.type == "File") {
+                var fileInput = document.getElementById("param_" + param.name);
+                var file = fileInput.files[0];
+                console.log(file);
+                return file;
+            } else if (param.type == "Object") {
                 return JSON.parse($("#param_" + param.name).val());
             } else {
                 return $("#param_" + param.name).val();
@@ -114,53 +119,91 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
             var extraUrlStr = "";
             var postObject = {};
 
-            if ($scope.consoleMethod.method == "GET" && $scope.consoleMethod.params) {
-                for (var i = 0; i < $scope.consoleMethod.params.length; i++) {
-                    if ($scope.consoleMethod.params[i].index == undefined) {
+            if (!$scope.consoleMethod.multipart) {
+                if ($scope.consoleMethod.method == "GET" && $scope.consoleMethod.params) {
+                    for (var i = 0; i < $scope.consoleMethod.params.length; i++) {
+                        if ($scope.consoleMethod.params[i].index == undefined) {
+                            if (extraUrlStr.length > 0) {
+                                extraUrlStr = extraUrlStr + "&";
+                            } else {
+                                extraUrlStr = extraUrlStr + "?";
+                            }
+                            extraUrlStr = extraUrlStr + $scope.consoleMethod.params[i].name + "=" + $("#param_" + $scope.consoleMethod.params[i].name).val();
+                        }
+                    }
+
+                    // Now add in any auth params we have
+                    for (var i = 0; i < $scope.settings.authAttributes.length; i++) {
                         if (extraUrlStr.length > 0) {
                             extraUrlStr = extraUrlStr + "&";
                         } else {
                             extraUrlStr = extraUrlStr + "?";
                         }
-                        extraUrlStr = extraUrlStr + $scope.consoleMethod.params[i].name + "=" + $("#param_" + $scope.consoleMethod.params[i].name).val();
+
+                        extraUrlStr = extraUrlStr + $scope.settings.authAttributes[i].name + "=" + $("#auth_" + $scope.settings.authAttributes[i].name).val();
+                    }
+
+
+                } else {
+                    // POST or PUT
+                    for (var i = 0; i < $scope.consoleMethod.params.length; i++) {
+                        if ($scope.consoleMethod.params[i].index == undefined) {
+                            formData.append($scope.consoleMethod.params[i].name, $scope.getParamValue($scope.consoleMethod.params[i]));
+                        }
+                    }
+
+                    // Now add in any auth params
+                    for (var i = 0; i < $scope.settings.authAttributes.length; i++) {
+                        postObject[$scope.settings.authAttributes[i].name] = $("#auth_" + $scope.settings.authAttributes[i].name).val();
                     }
                 }
 
-                // Now add in any auth params we have
-                for (var i = 0; i < $scope.settings.authAttributes.length; i++) {
-                   if (extraUrlStr.length > 0) {
-                        extraUrlStr = extraUrlStr + "&";
-                   } else {
-                        extraUrlStr = extraUrlStr + "?";
-                   }
+                // Send request
+                $http({method: $scope.consoleMethod.method, url: modifiedUrl + extraUrlStr, data: postObject}).
+                    success(function(responseData, status, headers, config) {
+                        $scope.results = JSON.stringify(responseData, undefined, 4);
 
-                   extraUrlStr = extraUrlStr + $scope.settings.authAttributes[i].name + "=" + $("#auth_" + $scope.settings.authAttributes[i].name).val();
-                }
+                    }).
+                    error(function(data, status, headers, config) {
+                        $scope.resultsError = data;
+                        $scope.resultsErrorCode = status;
+                    });
+
 
             } else {
-                // POST or PUT
+                // This is a multipart method, i.e. it has files too
+                var formData = new FormData();
+
                 for (var i = 0; i < $scope.consoleMethod.params.length; i++) {
                     if ($scope.consoleMethod.params[i].index == undefined) {
-                        postObject[$scope.consoleMethod.params[i].name] = $scope.getParamValue($scope.consoleMethod.params[i]);
+                        formData.append($scope.consoleMethod.params[i].name, $scope.getParamValue($scope.consoleMethod.params[i]));
                     }
                 }
 
                 // Now add in any auth params
                 for (var i = 0; i < $scope.settings.authAttributes.length; i++) {
-                    postObject[$scope.settings.authAttributes[i].name] = $("#auth_" + $scope.settings.authAttributes[i].name).val();
+                    formData.append($scope.settings.authAttributes[i].name, $("#auth_" + $scope.settings.authAttributes[i].name).val());
                 }
 
+
+                // Send post request
+                $http.post(modifiedUrl, formData, {
+                    transformRequest: angular.identity,
+                    headers: {'Content-Type': undefined}
+                }).
+                    success(function(responseData, status, headers, config) {
+                        $scope.results = JSON.stringify(responseData, undefined, 4);
+
+                    }).
+                    error(function(data, status, headers, config) {
+                        $scope.resultsError = data;
+                        $scope.resultsErrorCode = status;
+                    });
             }
 
-            $http({method: $scope.consoleMethod.method, url: modifiedUrl + extraUrlStr, data: postObject}).
-                success(function(responseData, status, headers, config) {
-                    $scope.results = JSON.stringify(responseData, undefined, 4);
 
-                }).
-                error(function(data, status, headers, config) {
-                    $scope.resultsError = data;
-                    $scope.resultsErrorCode = status;
-                });
+
+
         }
 
         $scope.selectPage = function() {
