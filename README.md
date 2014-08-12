@@ -68,6 +68,7 @@ The following parameter types are currently supported:
 * haypeaeye.Number
 * haypeaeye.Date
 * haypeaeye.File - although see note below about adding a multipart middleware
+* haypeaeye.Enum - restricts input to an array of valid values that you define in the validValues parameter of your field definitions
 
 #### Response utility methods
 Haypeaeye provides some utility methods for returning standard responses from your methods. These are:
