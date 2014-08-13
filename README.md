@@ -10,6 +10,8 @@ haypeaeye works alongside Express, and provides:
 * additional validation of parameters (e.g. of the parameter types you are passing into your API method)
 * an auto-generated documentation site with a console to try things out
 * a way to hook in to your existing authentication methods (for api methods that need to be protected)
+* utility methods for returning success or error statuses + data easily
+* NEW utility method for returning a video stream (to be displayed in a HTML5 video tag)
 
 
 ### Getting Started
@@ -123,5 +125,13 @@ It is well worth cleaning up the temp files that are generated from uploads afte
 haypeaeye.removeTempFiles(req);
 ```
 
+### Streaming Video
+haypeaeye now includes a utility method that allows you to return a video stream back as the response. To do this, you need to call the following method:
+
+```
+haypeaeye.streamVideo(req, res, path, contentType);
+```
+
+Where path is the full path to your video file and contentType is the content type of your video (defaults to 'video/mp4')
 
 
