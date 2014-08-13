@@ -3,6 +3,8 @@ var path = require('path');
 var fs = require('fs');
 var apiDocsPath = path.join(__dirname, '/apidocs');
 
+var DEFAULT_VIDEO_STREAM_CONTENT_TYPE = "video/mp4";
+
 exports.DATE_FORMAT = "YYYY-MM-DD HH:mm"
 
 var apiMethods = {};
@@ -404,3 +406,42 @@ exports.unauthorisedResponse = function (res, message) {
 
     res.send(401, {status: "error", error: errMessage});
 };
+
+// Stream Video Utility Method
+// Thanks to https://gist.github.com/paolorossi/1993068
+exports.streamVideo = function(req, res, path, contentType) {
+    var contentTypeToUse = DEFAULT_VIDEO_STREAM_CONTENT_TYPE;
+
+    if (contentType && contentType != "") {
+        contentTypeToUse = contentType;
+    }
+
+    fs.exists(path, function(exists) {
+        if (exists) {
+            var stat = fs.statSync(path);
+            var total = stat.size;
+            if (req.headers['range']) {
+                var range = req.headers.range;
+                var parts = range.replace(/bytes=/, "").split("-");
+                var partialstart = parts[0];
+                var partialend = parts[1];
+
+                var start = parseInt(partialstart, 10);
+                var end = partialend ? parseInt(partialend, 10) : total - 1;
+                var chunksize = (end - start) + 1;
+
+                var file = fs.createReadStream(path, {start: start, end: end});
+                res.writeHead(206, { 'Content-Range': 'bytes ' + start + '-' + end + '/' + total, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
+                file.pipe(res);
+            } else {
+                res.writeHead(200, { 'Content-Length': total, 'Content-Type': contentTypeToUse});
+                fs.createReadStream(path).pipe(res);
+            }
+        }
+        else {
+            exports.errorResponse(res, "Invalid file path for streaming");
+        }
+
+    });
+
+}
