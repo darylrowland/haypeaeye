@@ -22,7 +22,8 @@ Then add the following code snippet to set some initial settings:
 haypeaeye.setSettings({
     authenticatorMethod: function(req, callback) {
         // Set this method to return if you want to provide a way of authenticating some API calls
-        // The callback should return function(err, user)
+        // The callback should return callback(user)
+        // If there is no authorised user, the callback should be callback(null)
 
     },
     authAttributes: [
