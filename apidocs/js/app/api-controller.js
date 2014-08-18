@@ -148,7 +148,7 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                     // POST or PUT
                     for (var i = 0; i < $scope.consoleMethod.params.length; i++) {
                         if ($scope.consoleMethod.params[i].index == undefined) {
-                            formData.append($scope.consoleMethod.params[i].name, $scope.getParamValue($scope.consoleMethod.params[i]));
+                            postObject[$scope.consoleMethod.params[i].name] = $scope.getParamValue($scope.consoleMethod.params[i]);
                         }
                     }
 
