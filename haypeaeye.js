@@ -294,9 +294,10 @@ exports.handleRequest = function(req, res, next) {
                 if (apiMethods[key].regexp) {
                     var regexp = new RegExp(apiMethods[key].regexp, "i");
 
-                    if (regexp.test(url)) {
+                    if (req.method == apiMethods[key].method && regexp.test(url)) {
                         foundMethod = apiMethods[key];
                     }
+
                 }
 
             }
