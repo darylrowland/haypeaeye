@@ -195,7 +195,7 @@ var callMethod = function(methodToCall, req, res) {
             if ((param.required || param.index != undefined) && (!exports.getAttribute(req, param.name, methodToCall.method))) {
                 // Check this isn't a false boolean
                 if (!(param.type && param.type == exports.Boolean)) {
-                    res.send(400, {error: "Required attribute not present, '" + param.name + "'"});
+                    res.send(400, {error: "Required attribute not present, '" + param.name + "'", field_errors: [{field: param.name, message: "You must provide a value"}]});
                     return;
                 }
             }
@@ -206,7 +206,7 @@ var callMethod = function(methodToCall, req, res) {
                 // Begin more detailed validations
                 if (param.type && param.type == exports.Number) {
                     if (isNaN(rawValue)) {
-                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid number"});
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid number", field_errors: [{field: param.name, message: "Invalid number"}]});
                         return;
                     }
                 }
@@ -215,7 +215,7 @@ var callMethod = function(methodToCall, req, res) {
                 if (param.type && param.type == exports.Date) {
                     var dateValue = moment(rawValue, exports.DATE_FORMAT);
                     if (!dateValue.isValid()) {
-                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm"});
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm", field_errors: [{field: param.name, message: "Invalid date"}]});
                         return;
                     }
                 }
@@ -233,7 +233,7 @@ var callMethod = function(methodToCall, req, res) {
                     }
 
                     if (!validValue) {
-                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid value"});
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid value", field_errors: [{field: param.name, message: "Invalid value"}]});
                         return;
                     }
                 }
@@ -241,7 +241,7 @@ var callMethod = function(methodToCall, req, res) {
                 // Arrays
                 if (param.type && param.type == exports.Array) {
                     if (!(rawValue instanceof Array)) {
-                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid array"});
+                        res.send(400, {error: "Attribute '" + param.name + "' is not a valid array", field_errors: [{field: param.name, message: "Invalid array"}]});
                         return;
                     }
                 }
