@@ -201,9 +201,6 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                     });
             }
 
-
-
-
         }
 
         $scope.selectPage = function() {

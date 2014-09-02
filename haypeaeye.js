@@ -158,7 +158,7 @@ exports.getAttribute = function(req, attrName, methodType) {
         } else {
             return null;
         }
-    } else if (methodType == exports.POST) {
+    } else if (methodType == exports.POST || methodType == exports.PUT || methodType == exports.DELETE) {
         if (req.body[attrName] != null && req.body[attrName] != undefined) {
             return req.body[attrName];
         } else if (req.files && req.files[attrName]) {
