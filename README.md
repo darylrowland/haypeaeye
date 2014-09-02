@@ -94,6 +94,13 @@ Haypeaeye provides some utility methods for returning standard responses from yo
         ```
         haypeaeye.unauthorisedResponse(res, message);
         ```
+        
+Note: you can also provide field level errors in your error response. To do this, ensure your err object is in the following format:
+
+```
+err = {message: "There was a pretty nasty error", fieldErrors: [field: "first_name", message: "You forgot your name"]}
+```
+
 
 ### Accessing API Docs
 haypeaeye will automatically generate API documentation for you in HTML (and JSON) format. To access the HTML docs go to the following URL on your server:
