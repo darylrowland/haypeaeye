@@ -374,18 +374,29 @@ exports.setSettings = function(settingsObj) {
 }
 
 // UTILITY METHODS FOR SENDING RESPONSES IN STANDARD FORMATS
-exports.errorResponse = function (res, err) {
+exports.errorResponse = function (res, err, fieldErrors) {
+    var errorObj = {
+        status: "error",
+        error: "An error occurred"
+    }
+
+    if (err.fieldErrors) {
+        errorObj.field_errors = fieldErrors;
+    }
+
     if (err === null) {
-        res.send(500, {status: "error", error: "No results"});
+        errorObj.error = "No results";
     } else {
         if (err.message) {
-            res.send(500, {status: "error", error: err.message});
+            errorObj.error = err.message;
         } else {
-            res.send(500, {status: "error", error: err});
+            errorObj.error = err;
         }
     }
 
+    res.send(500, errorObj);
 };
+
 
 exports.successResponse = function (res, data) {
     res.json({status: "ok", data: data});
