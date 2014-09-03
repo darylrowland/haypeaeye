@@ -381,7 +381,7 @@ exports.errorResponse = function (res, err) {
     }
 
     if (err.fieldErrors) {
-        errorObj.field_errors = fieldErrors;
+        errorObj.field_errors = err.fieldErrors;
     }
 
     if (err === null) {
