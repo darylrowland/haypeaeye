@@ -190,7 +190,7 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
 
         var requestContent;
         if (methodToCall.method == "GET" || methodToCall.method == "DELETE") {
-            requestContent = req.params;
+            requestContent = req.query;
         } else {
             requestContent = req.body;
         }
@@ -199,7 +199,7 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
             'API REQUEST:',
             methodToCall.method,
             methodToCall.url,
-            contentToLog
+            requestContent
         )
 
     }
