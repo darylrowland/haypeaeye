@@ -39,6 +39,7 @@ var settings = {
     appTokenName: exports.DEFAULT_APP_TOKEN_NAME,
     appTokenRequired: exports.APP_TOKEN_NEVER_REQUIRED,
     authenticatorMethod: null,
+    requestLoggingMethod: null,
     documentationUrl: "/api/docs",
     apiRoot: "/api",
     applicationName: "Your app name",
@@ -182,7 +183,27 @@ var getValuesForParams = function(method, req) {
     }
 }
 
-var callMethod = function(methodToCall, req, res) {
+var callMethod = function(methodToCall, req, res, suppressLogging) {
+
+    // Call logging middleware function if defined and logging is not disabled
+    if (settings.requestLoggingMethod && !suppressLogging) {
+
+        var requestContent;
+        if (methodToCall.method == "GET" || methodToCall.method == "DELETE") {
+            requestContent = req.params;
+        } else {
+            requestContent = req.body;
+        }
+
+        settings.requestLoggingMethod(
+            'API REQUEST:',
+            methodToCall.method,
+            methodToCall.url,
+            contentToLog
+        )
+
+    }
+
     if (methodToCall.regexp) {
         getValuesForParams(methodToCall, req);
     }
@@ -367,6 +388,7 @@ exports.setSettings = function(settingsObj) {
     applySetting("appToken", settingsObj, []);
     applySetting("appTokenRequired", settingsObj, [exports.APP_TOKEN_ALWAYS_REQUIRED, exports.APP_TOKEN_NEVER_REQUIRED, exports.APP_TOKEN_PER_REQUEST_REQUIRED]);
     applySetting("authenticatorMethod", settingsObj);
+    applySetting("requestLoggingMethod", settingsObj);
     applySetting("documentationUrl", settingsObj);
     applySetting("applicationName", settingsObj);
     applySetting("authAttributes", settingsObj);
