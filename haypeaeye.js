@@ -421,7 +421,11 @@ exports.errorResponse = function (res, err) {
 
 
 exports.successResponse = function (res, data) {
-    res.json({status: "ok", data: data});
+    if (Array.isArray(data)) {
+        res.json({status: "ok", length: data.length, data: data});
+    } else {
+        res.json({status: "ok", data: data});
+    }
 };
 
 exports.successOrErrorResponse = function (res, err, data) {
