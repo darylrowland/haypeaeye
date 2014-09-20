@@ -223,7 +223,7 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
 
             var rawValue = exports.getAttribute(req, param.name, methodToCall.method);
 
-            if (rawValue != null) {
+            if (rawValue) {
                 // Begin more detailed validations
                 if (param.type && param.type == exports.Number) {
                     if (isNaN(rawValue)) {
