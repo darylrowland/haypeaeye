@@ -39,7 +39,9 @@ var settings = {
     appTokenName: exports.DEFAULT_APP_TOKEN_NAME,
     appTokenRequired: exports.APP_TOKEN_NEVER_REQUIRED,
     authenticatorMethod: null,
-    requestLoggingMethod: null,
+    requestLoggingMethod: null,     // Works for any request coming through haypeaeye
+    responseLoggingMethod: null,    // Works for responses sent using haypeaeye response functions  TODO: Implement responseLoggingMethod
+    errorLoggingMethod: null,       // Works for responses sent using haypeaeye response functions
     documentationUrl: "/api/docs",
     apiRoot: "/api",
     applicationName: "Your app name",
@@ -417,6 +419,10 @@ exports.errorResponse = function (res, err) {
     }
 
     res.send(500, errorObj);
+
+    // Call logging middleware function if defined
+    if (settings.errorLoggingMethod) errorLoggingMethod(errorObj);
+
 };
 
 
