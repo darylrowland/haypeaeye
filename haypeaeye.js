@@ -218,7 +218,9 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
             if ((param.required || param.index != undefined) && (!exports.getAttribute(req, param.name, methodToCall.method))) {
                 // Check this isn't a false boolean
                 if (!(param.type && param.type == exports.Boolean)) {
-                    res.send(400, {status: "error", error: "Required attribute not present, '" + param.name + "'", field_errors: [{field: param.name, message: "You must provide a value"}]});
+                    var errObject = {status: "error", error: "Required attribute not present, '" + param.name + "'", field_errors: [{field: param.name, message: "You must provide a value"}]};
+                    res.send(400, errObject);
+                    if (settings.errorLoggingMethod) settings.errorLoggingMethod(errObject);
                     return;
                 }
             }
@@ -229,7 +231,9 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
                 // Begin more detailed validations
                 if (param.type && param.type == exports.Number) {
                     if (isNaN(rawValue)) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid number", field_errors: [{field: param.name, message: "Invalid number"}]});
+                        var errObject = {status: "error", error: "Attribute '" + param.name + "' is not a valid number", field_errors: [{field: param.name, message: "Invalid number"}]};
+                        res.send(400, errObject);
+                        if (settings.errorLoggingMethod) settings.errorLoggingMethod(errObject);
                         return;
                     }
                 }
@@ -238,7 +242,9 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
                 if (param.type && param.type == exports.Date) {
                     var dateValue = moment(rawValue, exports.DATE_FORMAT);
                     if (!dateValue.isValid()) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm", field_errors: [{field: param.name, message: "Invalid date"}]});
+                        var errObject = {status: "error", error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm", field_errors: [{field: param.name, message: "Invalid date"}]};
+                        res.send(400, errObject);
+                        if (settings.errorLoggingMethod) settings.errorLoggingMethod(errObject);
                         return;
                     }
                 }
@@ -256,7 +262,9 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
                     }
 
                     if (!validValue) {
+                        var errObject = {status: "error", error: "Attribute '" + param.name + "' is not a valid value", field_errors: [{field: param.name, message: "Invalid value"}]};
                         res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid value", field_errors: [{field: param.name, message: "Invalid value"}]});
+                        if (settings.errorLoggingMethod) settings.errorLoggingMethod(errObject);
                         return;
                     }
                 }
@@ -264,7 +272,9 @@ var callMethod = function(methodToCall, req, res, suppressLogging) {
                 // Arrays
                 if (param.type && param.type == exports.Array) {
                     if (!(rawValue instanceof Array)) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid array", field_errors: [{field: param.name, message: "Invalid array"}]});
+                        var errObject = {status: "error", error: "Attribute '" + param.name + "' is not a valid array", field_errors: [{field: param.name, message: "Invalid array"}]};
+                        res.send(400, errObject);
+                        if (settings.errorLoggingMethod) settings.errorLoggingMethod(errObject);
                         return;
                     }
                 }
@@ -343,7 +353,9 @@ exports.handleRequest = function(req, res, next) {
                             callMethod(foundMethod, req, res);
                         } else {
                             // Auth required, and auth failed, so send error
-                            res.send(401, {error: "Invalid login credentials"});
+                            var errObject = {error: "Invalid login credentials"};
+                            res.send(401, errObject);
+                            if (settings.errorLoggingMethod) settings.errorLoggingMethod(errObject);
                         }
                     });
                 } else {
@@ -391,6 +403,7 @@ exports.setSettings = function(settingsObj) {
     applySetting("appTokenRequired", settingsObj, [exports.APP_TOKEN_ALWAYS_REQUIRED, exports.APP_TOKEN_NEVER_REQUIRED, exports.APP_TOKEN_PER_REQUEST_REQUIRED]);
     applySetting("authenticatorMethod", settingsObj);
     applySetting("requestLoggingMethod", settingsObj);
+    applySetting("errorLoggingMethod", settingsObj);
     applySetting("documentationUrl", settingsObj);
     applySetting("applicationName", settingsObj);
     applySetting("authAttributes", settingsObj);
@@ -421,7 +434,7 @@ exports.errorResponse = function (res, err) {
     res.send(500, errorObj);
 
     // Call logging middleware function if defined
-    if (settings.errorLoggingMethod) errorLoggingMethod(errorObj);
+    if (settings.errorLoggingMethod) settings.errorLoggingMethod(errorObj);
 
 };
 
@@ -449,6 +462,7 @@ exports.unauthorisedResponse = function (res, message) {
     }
 
     res.send(401, {status: "error", error: errMessage});
+    if (settings.errorLoggingMethod) settings.errorLoggingMethod(errMessage);
 };
 
 // Stream Video Utility Method
@@ -488,4 +502,4 @@ exports.streamVideo = function(req, res, path, contentType) {
 
     });
 
-}
+};
