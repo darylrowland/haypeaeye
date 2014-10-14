@@ -1,0 +1,61 @@
+body {
+    font-family: "open sans";
+}
+
+.spaced {
+    margin-left: 20px;
+}
+
+.medium-margin-top {
+    margin-top: 20px;
+}
+
+.key {
+    font-weight: 700;
+}
+
+.string {
+    color: #53A55A;
+}
+
+.number {
+    color: #1BA9E0;
+}
+
+.boolean {
+    color: #ED9631;
+}
+
+.null {
+    color: #E72040;
+}
+
+.no-select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.panel-heading {
+    cursor: pointer;
+}
+
+.large-margin-top {
+    margin-top: 20px;
+}
+
+.small-margin-top {
+    margin-top: 10px;
+}
+
+.btn {
+    outline: 0 !important;
+    border-style: none !important;
+}
+
+.btn:active {
+    outline: 0 !important;
+}
