@@ -1,5 +1,5 @@
-apiApp.controller('ApiController', ['$scope', '$http', '$location',
-    function ApiController($scope, $http, $location) {
+apiApp.controller('ApiController', ['$scope', '$http', '$location', '$sce',
+    function ApiController($scope, $http, $location, $sce) {
         $scope.settings = null;
         $scope.loaded = false;
         $scope.groups = {
@@ -7,6 +7,11 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
         };
         $scope.page = "overview";
         $scope.groupNames = [];
+
+        const ERROR_CODES = {
+            400: "Invalid Request",
+            401: "Unauthorised"
+        }
 
         $scope.loadApiSettings = function() {
             $http.get('/api/docs/settings', {}).
@@ -17,6 +22,18 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                 error(function(data, status, headers, config) {
                     alert("Could not load API Documentation");
                 });
+        }
+
+        $scope.expandMethod = function(method) {
+            method.collapsed = false;
+        }
+
+        $scope.collapseMethod = function(method) {
+            method.collapsed = true;
+        }
+
+        $scope.toggleMethodCollapsed = function(method) {
+            method.collapsed = !method.collapsed;
         }
 
         $scope.loadAllMethods = function() {
@@ -37,6 +54,10 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                                 $scope.groups[method.options.grouping] = [];
                             }
 
+                            method.collapsed = true;
+
+                            console.log(method.examples);
+
                             $scope.groups[method.options.grouping].push(method);
 
                         } else {
@@ -48,6 +69,16 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
 
                     // Add the group names to an array
                     for (var key in $scope.groups) {
+                        $scope.groups[key].sort(function(a, b) {
+                            if (a.url <= b.url) {
+                                return -1;
+                            } else if (a.url == b.url) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        });
+
                         $scope.groupNames.push(key);
                     }
 
@@ -70,6 +101,48 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
             $scope.resultsErrorCode = null;
             $scope.consoleParams = {};
             $('#consoleModal').modal();
+        }
+
+        $scope.showExampleModal = function(method) {
+            $scope.consoleMethod = method;
+            console.log(method.examples);
+            $scope.selectExample(method.examples[0]);
+            $('#exampleModal').modal();
+        }
+
+        function syntaxHighlight(json) {
+            if (!json || json == "") {
+                return null;
+            }
+
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        $scope.formatExampleResponse = function() {
+            if ($scope.selectedExample) {
+                return $sce.trustAsHtml(syntaxHighlight(JSON.stringify($scope.selectedExample.result, undefined, 4)));
+            }
+
+        }
+
+        $scope.selectExample = function(example) {
+            console.log(example.result);
+            $scope.selectedExample = example;
         }
 
         $scope.getParamValue = function(param) {
@@ -161,11 +234,11 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                 // Send request
                 $http({method: $scope.consoleMethod.method, url: modifiedUrl + extraUrlStr, data: postObject}).
                     success(function(responseData, status, headers, config) {
-                        $scope.results = JSON.stringify(responseData, undefined, 4);
+                        $scope.results = $sce.trustAsHtml(syntaxHighlight(JSON.stringify(responseData, undefined, 4)));
 
                     }).
                     error(function(data, status, headers, config) {
-                        $scope.resultsError = data;
+                        $scope.resultsError = $scope.results = $sce.trustAsHtml(syntaxHighlight(JSON.stringify(data, undefined, 4)));
                         $scope.resultsErrorCode = status;
                     });
 
@@ -192,11 +265,11 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
                     headers: {'Content-Type': undefined}
                 }).
                     success(function(responseData, status, headers, config) {
-                        $scope.results = JSON.stringify(responseData, undefined, 4);
+                        $scope.results = $sce.trustAsHtml(syntaxHighlight(JSON.stringify(responseData, undefined, 4)));
 
                     }).
                     error(function(data, status, headers, config) {
-                        $scope.resultsError = data;
+                        $scope.resultsError = $sce.trustAsHtml(syntaxHighlight(JSON.stringify(data, undefined, 4)));
                         $scope.resultsErrorCode = status;
                     });
             }
@@ -217,6 +290,14 @@ apiApp.controller('ApiController', ['$scope', '$http', '$location',
             $scope.page = getTabPage($location.path(), "overview");
             $scope.selectPage();
         });
+
+        $scope.getErrorMapping = function(errorCode) {
+            if (ERROR_CODES[errorCode]) {
+                return ERROR_CODES[errorCode];
+            } else {
+                return null;
+            }
+        }
 
 
     }

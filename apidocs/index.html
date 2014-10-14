@@ -8,6 +8,8 @@
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -49,7 +51,7 @@
 
                 <div ng-repeat="method in selectedPage | filter: searchStr">
                     <div class="panel panel-default">
-                        <div class="panel-heading">
+                        <div class="panel-heading no-select" ng-click="toggleMethodCollapsed(method)">
                             <h3 class="panel-title">{{method.title}}</h3>
                         </div>
                         <div class="panel-body">
@@ -57,7 +59,7 @@
                             <div>
                                 <span class="label label-default">{{method.method}}</span> <span class="label label-info" ng-if="method.multipart">Multipart</span>  <code>{{method.url}}</code>
                             </div>
-                            <div ng-if="method.params">
+                            <div ng-if="method.params && method.params.length > 0 && !method.collapsed">
                                 <h5>Attributes</h5>
                                 <table class="table table-bordered table-condensed" style="margin-top: 10px;">
                                     <tr>
@@ -75,14 +77,19 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div ng-if="method.options.response">
+
+                            <div ng-if="method.options.response && !method.collapsed">
                                 <h5>Response</h5>
                                 <p>{{method.options.response.description}}</p>
                                 <pre class="small">{{method.options.response.example}}</pre>
                             </div>
-                            <div>
+                            <div class="small-margin-top">
                                 <a href="" ng-click="showConsoleModal(method)">Try in the console</a>
+                                <a href="" ng-show="method.examples" class="spaced" ng-click="showExampleModal(method)">See examples</a>
+                                <a href="" ng-show="!method.collapsed" class="spaced" ng-click="collapseMethod(method)">Hide Details</a>
+                                <a href="" ng-show="method.collapsed && method.params && method.params.length > 0" class="spaced" ng-click="expandMethod(method)">Show Details</a>
                             </div>
+
 
                         </div>
                     </div>
@@ -162,10 +169,48 @@
 
                     <div ng-show="results || resultsError" style="margin-top: 20px;">
                         <h4>Results</h4>
-                        <pre ng-show="results">{{results}}</pre>
 
-                        <pre ng-show="resultsError"><span class="label label-danger" ng-show="resultsErrorCode">{{resultsErrorCode}}</span> {{resultsError}}</pre>
+                        <div class="label label-danger" ng-show="resultsErrorCode">{{resultsErrorCode}} {{getErrorMapping(resultsErrorCode)}}</div>
+
+                        <pre ng-show="results" ng-class="{'large-margin-top': resultsErrorCode}" ng-bind-html="results"></pre>
+
                     </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Examples Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">{{consoleMethod.title}}</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <span class="label label-default">{{consoleMethod.method}}</span> <span class="label label-info" ng-if="consoleMethod.multipart">Multipart</span> <code>{{consoleMethod.url}}</code>
+                    </div>
+
+                    <div class="medium-margin-top">
+                        <select class="form-control" ng-model="selectedExample" ng-options="example as example.title for example in consoleMethod.examples">
+
+                        </select>
+                    </div>
+
+                    <div class="medium-margin-top">
+                        <h4>Results</h4>
+                        <pre ng-bind-html="formatExampleResponse()"></pre>
+                    </div>
+
 
 
                 </div>

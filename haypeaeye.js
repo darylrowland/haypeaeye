@@ -1,6 +1,7 @@
 var moment = require("moment");
 var path = require('path');
 var fs = require('fs');
+var haypeaeyeTests = require('./haypeaeye-tester');
 var apiDocsPath = path.join(__dirname, '/apidocs');
 
 var DEFAULT_VIDEO_STREAM_CONTENT_TYPE = "video/mp4";
@@ -45,8 +46,32 @@ var settings = {
     authAttributes: [
         {name: "appToken", description: "Token given to your app", type: exports.String},
         {name: "userToken", description: "Unique token for your user", type: exports.String}
-    ]
+    ],
+    wrapWithStatusAndData: false
 };
+
+// Load the example request file if it exists
+var examples = {};
+
+fs.exists(haypeaeyeTests.TEST_EXAMPLES_FILE, function(exists) {
+    if (exists) {
+        fs.readFile(haypeaeyeTests.TEST_EXAMPLES_FILE, 'utf8', function (err, data) {
+            if (err) {
+                console.log("Could not load examples file for documentation");
+            } else {
+                try {
+                    examples = JSON.parse(data);
+                    console.log("Loaded examples data for API documentation");
+                } catch(e) {
+                    console.log("Could not load examples data for API documentation");
+                    console.log(e);
+                }
+            }
+        });
+    }
+});
+
+
 
 exports.addApiMethod = function(url, method, title, options, params, callback) {
     // Process the url, to look for embedded params
@@ -271,7 +296,13 @@ exports.handleRequest = function(req, res, next) {
         var docsJson = [];
 
         for (var key in apiMethods) {
-            docsJson.push(apiMethods[key]);
+            var methodJson = apiMethods[key];
+
+            if (examples && examples[methodJson.method + "_" + methodJson.url]) {
+                methodJson.examples = examples[methodJson.method + "_" + methodJson.url];
+            }
+
+            docsJson.push(methodJson);
         }
 
         res.json(docsJson);
@@ -376,8 +407,11 @@ exports.setSettings = function(settingsObj) {
 // UTILITY METHODS FOR SENDING RESPONSES IN STANDARD FORMATS
 exports.errorResponse = function (res, err) {
     var errorObj = {
-        status: "error",
         error: "An error occurred"
+    }
+
+    if (settings.wrapWithStatusAndData) {
+        errorObj.status = "error"
     }
 
     if (err.fieldErrors) {
@@ -399,10 +433,15 @@ exports.errorResponse = function (res, err) {
 
 
 exports.successResponse = function (res, data) {
-    res.json({status: "ok", data: data});
+    if (settings.wrapWithStatusAndData) {
+        res.json({status: "ok", data: data});
+    } else {
+        res.json(data);
+    }
 };
 
-exports.successOrErrorResponse = function (res, err, data) {
+exports.
+    successOrErrorResponse = function (res, err, data) {
     if (err) {
         exports.errorResponse(res, err);
     } else {
@@ -456,4 +495,8 @@ exports.streamVideo = function(req, res, path, contentType) {
 
     });
 
+}
+
+exports.runTests = function(filename, host, functions, callback) {
+    haypeaeyeTests.runTestsFromFile(filename, host, functions, callback);
 }
