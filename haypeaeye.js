@@ -47,7 +47,7 @@ var settings = {
         {name: "appToken", description: "Token given to your app", type: exports.String},
         {name: "userToken", description: "Unique token for your user", type: exports.String}
     ],
-    wrapWithStatusAndData: false
+    wrapWithStatusAndData: true
 };
 
 // Load the example request file if it exists
@@ -402,6 +402,8 @@ exports.setSettings = function(settingsObj) {
     applySetting("applicationName", settingsObj);
     applySetting("authAttributes", settingsObj);
     applySetting("apiRoot", settingsObj);
+    applySetting("apiRoot", settingsObj);
+    applySetting("wrapWithStatusAndData", settingsObj);
 }
 
 // UTILITY METHODS FOR SENDING RESPONSES IN STANDARD FORMATS
