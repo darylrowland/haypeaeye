@@ -407,7 +407,7 @@ exports.setSettings = function(settingsObj) {
 }
 
 // UTILITY METHODS FOR SENDING RESPONSES IN STANDARD FORMATS
-exports.errorResponse = function (res, err) {
+exports.errorResponse = function (res, err, statusCode) {
     var errorObj = {
         error: "An error occurred"
     }
@@ -430,7 +430,12 @@ exports.errorResponse = function (res, err) {
         }
     }
 
-    res.send(500, errorObj);
+    if (statusCode) {
+        errorObj.statusCode = statusCode;
+        res.send(statusCode, errorObj)
+    } else {
+        res.send(500, errorObj);
+    }
 };
 
 
