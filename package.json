@@ -1,6 +1,6 @@
 {
   "name": "haypeaeye",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Library for Express that lets you easily create APIs that self document and validate",
   "main": "haypeaeye.js",
   "repository": {
@@ -28,7 +28,7 @@
     "url": "https://github.com/darylrowland/haypeaeye/issues"
   },
   "homepage": "https://github.com/darylrowland/haypeaeye",
-  "_id": "haypeaeye@0.4.3",
+  "_id": "haypeaeye@0.3.0",
   "scripts": {},
   "_shasum": "4a66fcb18843134e696964f78f2eb8ff52782dee",
   "_from": "haypeaeye@*"
