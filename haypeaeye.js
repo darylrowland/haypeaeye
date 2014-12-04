@@ -237,7 +237,7 @@ var callMethod = function(methodToCall, req, res) {
                 }
 
                 // Dates
-                if (param.type && param.type == exports.Date && rawValue) {
+                if (param.type && param.type == exports.Date && rawValue && rawValue != "") {
                     var dateValue = moment(rawValue, exports.DATE_FORMAT);
                     if (!dateValue.isValid()) {
                         res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm", field_errors: [{field: param.name, message: "Invalid date"}]});
