@@ -507,3 +507,7 @@ exports.streamVideo = function(req, res, path, contentType) {
 exports.runTests = function(filename, host, functions, callback) {
     haypeaeyeTests.runTestsFromFile(filename, host, functions, callback);
 }
+
+exports.getStoredValuesFromTests = function() {
+    return haypeaeyeTests.getStoredValues();
+}

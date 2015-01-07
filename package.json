@@ -1,6 +1,6 @@
 {
   "name": "haypeaeye",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "Library for Express that lets you easily create APIs that self document and validate",
   "main": "haypeaeye.js",
   "repository": {

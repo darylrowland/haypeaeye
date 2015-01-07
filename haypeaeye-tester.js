@@ -426,3 +426,7 @@ exports.runTestsFromFile = function(fileName, host, functions, callback) {
         console.error("Could not load the haypeaeye tests metadata file", e);
     }
 }
+
+exports.getStoredValues = function() {
+    return storedValues;
+}
