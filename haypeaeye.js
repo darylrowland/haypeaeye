@@ -47,6 +47,7 @@ var settings = {
         {name: "appToken", description: "Token given to your app", type: exports.String},
         {name: "userToken", description: "Unique token for your user", type: exports.String}
     ],
+    authInHeaders: false,
     wrapWithStatusAndData: true
 };
 
@@ -404,6 +405,7 @@ exports.setSettings = function(settingsObj) {
     applySetting("apiRoot", settingsObj);
     applySetting("apiRoot", settingsObj);
     applySetting("wrapWithStatusAndData", settingsObj);
+    applySetting("authInHeaders", settingsObj);
 }
 
 // UTILITY METHODS FOR SENDING RESPONSES IN STANDARD FORMATS
