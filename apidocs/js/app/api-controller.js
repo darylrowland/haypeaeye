@@ -92,6 +92,12 @@ function ApiController($scope, $http, $location, $sce) {
 
   $scope.loadApiSettings();
 
+  $scope.getSavedAuthAttribute = function(authAttributeName) {
+    if (window.localStorage[authAttributeName]) {
+      return window.localStorage[authAttributeName];
+    }
+  }
+
   $scope.showConsoleModal = function(method) {
     $scope.consoleMethod = method;
     $scope.results = null;
@@ -158,6 +164,14 @@ function ApiController($scope, $http, $location, $sce) {
     $scope.resultsError = null;
     $scope.resultsErrorCode = null;
 
+    // If there are any auth params, lets save them to local storage so that they can be easily retrieved
+    if ($scope.settings.authAttributes.length > 0) {
+      for (var i = 0; i < $scope.settings.authAttributes.length; i++) {
+        if ($("#auth_" + $scope.settings.authAttributes[i].name).val()) {
+          window.localStorage[$scope.settings.authAttributes[i].name] = $("#auth_" + $scope.settings.authAttributes[i].name).val();
+        }
+      }
+    }
 
     // Figure out the URL and any URL params
     var modifiedUrl = $scope.consoleMethod.url;
