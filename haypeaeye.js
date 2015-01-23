@@ -221,7 +221,7 @@ var callMethod = function(methodToCall, req, res) {
             if ((param.required || param.index != undefined) && (!exports.getAttribute(req, param.name, methodToCall.method))) {
                 // Check this isn't a false boolean
                 if (!(param.type && param.type == exports.Boolean)) {
-                    res.send(400, {status: "error", error: "Required attribute not present, '" + param.name + "'", field_errors: [{field: param.name, message: "You must provide a value"}]});
+                    res.status(400).send({status: "error", error: "Required attribute not present, '" + param.name + "'", field_errors: [{field: param.name, message: "You must provide a value"}]});
                     return;
                 }
             }
@@ -232,7 +232,7 @@ var callMethod = function(methodToCall, req, res) {
                 // Begin more detailed validations
                 if (param.type && param.type == exports.Number) {
                     if (isNaN(rawValue)) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid number", field_errors: [{field: param.name, message: "Invalid number"}]});
+                        res.status(400).send({status: "error", error: "Attribute '" + param.name + "' is not a valid number", field_errors: [{field: param.name, message: "Invalid number"}]});
                         return;
                     }
                 }
@@ -241,7 +241,7 @@ var callMethod = function(methodToCall, req, res) {
                 if (param.type && param.type == exports.Date && rawValue && rawValue != "") {
                     var dateValue = moment(rawValue, exports.DATE_FORMAT);
                     if (!dateValue.isValid()) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm", field_errors: [{field: param.name, message: "Invalid date"}]});
+                        res.status(400).send({status: "error", error: "Attribute '" + param.name + "' is not a valid date. Format should be YYYY-MM-DD HH:mm", field_errors: [{field: param.name, message: "Invalid date"}]});
                         return;
                     }
                 }
@@ -259,7 +259,7 @@ var callMethod = function(methodToCall, req, res) {
                     }
 
                     if (!validValue) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid value", field_errors: [{field: param.name, message: "Invalid value"}]});
+                        res.status(400).send({status: "error", error: "Attribute '" + param.name + "' is not a valid value", field_errors: [{field: param.name, message: "Invalid value"}]});
                         return;
                     }
                 }
@@ -267,7 +267,7 @@ var callMethod = function(methodToCall, req, res) {
                 // Arrays
                 if (param.type && param.type == exports.Array) {
                     if (!(rawValue instanceof Array)) {
-                        res.send(400, {status: "error", error: "Attribute '" + param.name + "' is not a valid array", field_errors: [{field: param.name, message: "Invalid array"}]});
+                        res.status(400).send({status: "error", error: "Attribute '" + param.name + "' is not a valid array", field_errors: [{field: param.name, message: "Invalid array"}]});
                         return;
                     }
                 }
@@ -289,7 +289,7 @@ exports.handleRequest = function(req, res, next) {
             res.redirect(settings.documentationUrl + "/html/index.html");
         } else {
             var strWithoutStartOfUrl = req.url.substr(req.url.indexOf(htmlDocsUrl) + htmlDocsUrl.length);
-            res.sendfile(apiDocsPath + strWithoutStartOfUrl);
+            res.sendFile(apiDocsPath + strWithoutStartOfUrl);
         }
     } else if (req.method == exports.GET && req.url == settings.documentationUrl + "/settings") {
         res.json(settings);
@@ -352,7 +352,7 @@ exports.handleRequest = function(req, res, next) {
                             callMethod(foundMethod, req, res);
                         } else {
                             // Auth required, and auth failed, so send error
-                            res.send(401, {error: "Invalid login credentials"});
+                            res.status(401).send({error: "Invalid login credentials"});
                         }
                     });
                 } else {
@@ -434,9 +434,9 @@ exports.errorResponse = function (res, err, statusCode) {
 
     if (statusCode) {
         errorObj.statusCode = statusCode;
-        res.send(statusCode, errorObj)
+        res.status(statusCode).send(errorObj);
     } else {
-        res.send(500, errorObj);
+        res.status(500).send(errorObj);
     }
 };
 
@@ -464,7 +464,7 @@ exports.unauthorisedResponse = function (res, message) {
         errMessage = message;
     }
 
-    res.send(401, {status: "error", error: errMessage});
+    res.status(401).send({status: "error", error: errMessage});
 };
 
 // Stream Video Utility Method
