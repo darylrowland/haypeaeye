@@ -436,7 +436,11 @@ exports.errorResponse = function (res, err, statusCode) {
         errorObj.statusCode = statusCode;
         res.status(statusCode).send(errorObj);
     } else {
-        res.status(500).send(errorObj);
+        try {
+            res.status(500).send(errorObj);    
+        } catch (e) {
+            // Done
+        }
     }
 };
 
